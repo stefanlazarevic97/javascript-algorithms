@@ -137,7 +137,7 @@ function jumbleSort(string, alphabet = null) {
     while (!sorted) {
         sorted = true;
         
-        for (let i = 0; i < string.length; i++) {
+        for (let i = 0; i < string.length - 1; i++) {
             if (alphabet.indexOf(string[i]) > alphabet.indexOf(string[i + 1])) {
                 [string[i], string[i + 1]] = [string[i + 1], string[i]];
                 sorted = false;
@@ -160,6 +160,19 @@ function jumbleSort(string, alphabet = null) {
 // remaining elements on to the appropriate side of the pivot. Recursively quick 
 // sort each side of the array until a base case is reached. 
 
+Array.prototype.quickSort = function(callback) {
+    callback ||= function(a, b) {
+        return Math.sign(a - b);
+    }
+
+    if (this.length < 2) return this;
+
+    let pivot = this[0];
+    let left = this.slice(1).filter((ele) => callback(ele, pivot) === -1);
+    let right = this.slice(1).filter((ele) => callback(ele, pivot) !== -1);
+    return left.quickSort(callback).concat(pivot, right.quickSort(callback));
+}
+
 // Write an `Array.prototype.mergeSort` method that merge sorts an array. It
 // should take an optional callback that compares two elements, returning -1 if 
 // the first element should appear before the second, 0 if they are equal, and 1 
@@ -176,6 +189,34 @@ function jumbleSort(string, alphabet = null) {
 // until a base case is reached. Use a helper method, merge, to combine the
 // halves in sorted order, and return the merged array.
 
+Array.prototype.mergeSort = function(callback) {
+    if (this.length < 2) return this;
+
+    callback ||= function(a, b) {
+        return Math.sign(a - b);
+    }
+
+    const center = Math.floor(this.length / 2);
+    const left = this.slice(0, center).mergeSort(callback);
+    const right = this.slice(center).mergeSort(callback);
+
+    return merge(left, right, callback);
+}
+
+function merge(left, right, comparator) {
+    let merged = [];
+
+    while (left.length > 0 && right.length > 0) {
+        if (comparator(left[0], right[0]) === -1) {
+            merged.push(left.shift());
+        } else {
+            merged.push(right.shift());
+        }
+    }
+
+    return merged.concat(left, right);
+}
+
 // Write a recursive function, `binarySearch(sortedArray, target)`, that returns
 // the index of `target` in `sortedArray`, or -1 if it is not found. Do NOT use
 // the built-in `Array.prototype.indexOf` or `Array.prototype.includes` methods 
@@ -188,14 +229,47 @@ function jumbleSort(string, alphabet = null) {
 // half of the array until the target is found or the base case (empty array) is
 // reached.
 
+function binarySearch(array, target) {
+    const center = Math.floor(array.length / 2);
+    if (array.length === 0) return -1;
+    if (array[center] === target) return center;
+
+    if (array[center] > target) {
+        return binarySearch(array.slice(0, center), target);
+    } else {
+        const rec = binarySearch(array.slice(center + 1), target);
+        return rec === -1 ? -1 : rec + center + 1;
+    }
+}
+
 // Write a function `firstEvenNumbersSum(n)` that returns the sum of the
 // first n even numbers recursively. Assume n > 0
+
+function firstEvenNumbersSum(n) {
+    if (n === 1) return 2;
+    return 2 * n + firstEvenNumbersSum(n - 1);
+}
 
 // Write a function, `exponent(b, n)`, that calculates b^n recursively. 
 // Your solution should accept negative values for n. Do NOT use ** or Math.pow
 
+function exponent(b, n) {
+    if (n === 0) return 1;
+
+    if (n > 0) {
+        return b * exponent(b, n - 1);
+    } else {
+        return 1 / b * exponent(b, n + 1);
+    }
+}
+
 // Write a recursive function `recSum(numArr)` that returns the sum of all
 // elements in an array. Assume all elements are numbers.
+
+function recSum(array) {
+    if (array.length === 0) return 0;
+    return array[0] + recSum(array.slice(1));
+}
 
 // Write a function, `deepDup(arr)`, that will perform a "deep" duplication of
 // the array and any interior arrays. A deep duplication means that the array 
@@ -203,9 +277,21 @@ function jumbleSort(string, alphabet = null) {
 // and are completely different objects in memory than those in the original 
 // array.
 
+function deepDup(array) {
+    return array.map((ele) => ele instanceof Array ? deepDup(ele) : ele);
+}
+
 // Write a recursive function, `factorialsRec(num)`, that returns the first 
 // `num` factorial numbers. Note that the 1st factorial number is 0!, which 
 // equals 1. The 2nd factorial is 1!, the 3rd factorial is 2!, etc.
+
+function factorialsRec(num) {
+    if (num === 0 || num === 1) return [1];
+
+    const facts = factorialsRec(num - 1);
+    facts.push(facts[facts.length - 1] * (num - 1));
+    return facts;
+}
 
 // Write a recursive function `stringIncludeKey(string, key)` that takes in 
 // a string to search and a key string. Return true if the string contains all 
@@ -213,6 +299,16 @@ function jumbleSort(string, alphabet = null) {
 //
 // stringIncludeKey("cadbpc", "abc") => true
 // stringIncludeKey("cba", "abc") => false
+
+function stringIncludeKey(string, key) {
+    if (key.length === 0) return true;
+
+    let nextKeyChar = key[0];
+    let keyIndex = string.indexOf(nextKeyChar);
+
+    if (keyIndex < 0) return false; 
+    return stringIncludeKey(string.slice(keyIndex + 1), key.slice(1));
+}
 
 // Write a function, `digitalRoot(num)`. It should sum the digits of a positive
 // integer. If the result is greater than 9 (i.e. more than one digit), sum the 
@@ -224,9 +320,35 @@ function jumbleSort(string, alphabet = null) {
 // You may wish to use a helper function, `digitalRootStep(num)` which performs
 // one step of the process.
 
+function digitalRoot(num) {
+    while (num >= 10) {
+        num = digitalRootStep(num);
+    }
+
+    return num;
+}
+
+function digitalRootStep(num) {
+    let root = 0;
+
+    while (num > 0) {
+        root += num % 10;
+        num = Math.floor(num / 10);
+    }
+    
+    return root;
+}
+
 // Write a function, `fibsSum(n)`, that finds the sum of the first n
 // fibonacci numbers recursively. Assume n > 0.
 // Note that for this problem, the fibonacci sequence starts with [1, 1]. 
+
+function fibsSum(n) {
+    if (n === 1) return 1;
+    if (n === 2) return 2;
+
+    return fibsSum(n - 2) + fibsSum(n - 1) + 1;
+}
 
 // Write an `Array.prototype.myRotate(times)` method which rotates the array by 
 // the given argument. If no argument is given, rotate the array by one position. 
