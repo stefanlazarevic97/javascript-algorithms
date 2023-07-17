@@ -268,7 +268,14 @@ function exponent(b, n) {
 
 function recSum(array) {
     if (array.length === 0) return 0;
-    return array[0] + recSum(array.slice(1));
+    return array[0] + recSum(array.slice(1));String.prototype.mySlice = function(start, end) {
+    let newString = '';
+    if (typeof end === "undefined") end = this.length;
+
+    for (i = start, i < end; i++) newString += this[i];
+
+    return newString;
+}
 }
 
 // Write a function, `deepDup(arr)`, that will perform a "deep" duplication of
