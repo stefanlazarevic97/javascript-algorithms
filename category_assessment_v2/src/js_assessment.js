@@ -357,12 +357,61 @@ function fibsSum(n) {
 // ["a", "b", "c", "d"].myRotate(2) => ["c", "d", "a", "b"]
 // ["a", "b", "c", "d"].myRotate(-1) => ["d", "a", "b", "c"]
 
+Array.prototype.myRotate = function(times = 1) {
+    let rotated = this.slice(0);
+    let rotations;
+
+    if (times < 0) {
+        rotations = this.length + (times % this.length);
+    } else {
+        rotations = times % this.length;
+    }
+
+    for (let i = 0; i < rotations; i++) rotated.push(rotated.shift());
+    return rotated;
+}
+
 // Write an `Array.prototype.median` method that returns the median of elements
 // in an array. If the length is even, return the average of the middle two 
 // elements.
 
+Array.prototype.median = function() {
+    if (this.length === 0) return null;
+    
+    const sorted = this.sort();
+    const center = Math.floor(sorted.length / 2);
+
+    if (sorted.length % 2 === 0) {
+        return ((sorted[center] + sorted[center - 1]) / 2);
+    } else {
+        return (sorted[center]);
+    }
+}
+
 // Write a function `primes(num)`, which returns an array of the first "num" primes.
 // You may wish to use an `isPrime(num)` helper function.
+
+function primes(num) {
+    let primesArray = [];
+    let i = 2; 
+
+    while (primesArray.length < num) {
+        if (isPrime(i)) primesArray.push(i);
+        i++;
+    }
+
+    return primesArray;
+}
+
+function isPrime(num) {
+    if (num < 2) return false;
+
+    for (let factor = 2; factor * factor <= num; factor++) {
+        if (num % factor === 0) return false;
+    }
+
+    return true;
+}
 
 // Write an `Array.prototype.myJoin(separator)` method, which joins the elements
 // of an array into a string. If an argument is provided to `myJoin`, use that
@@ -372,11 +421,22 @@ function fibsSum(n) {
 // [1, 2, 3].myJoin() => '123'
 // [1, 2, 3].myJoin('$') => '1$2$3'
 
+Array.prototype.myJoin = function(separator = '') {
+    let newString = '';
+
+    this.forEach((ele) => newString += `${ele}${separator}`);
+    return newString.slice(0, newString.length - separator.length);
+}
+
 // Write a function, `doubler(arr)`, that returns a copy of the input array 
 // with all elements doubled. You do not need to worry about invalid input.
 //
 // Example:
 // doubler([1, 2, 3]) => [2, 4, 6]
+
+function doubler(array) {
+    return array.map((ele) => ele * 2);
+}
 
 // Write an `Array.prototype.twoSum` method, that finds all pairs of positions 
 // where the elements at those positions sum to zero.
@@ -387,6 +447,18 @@ function fibsSum(n) {
 // [0, 2] before [1, 2] (smaller first elements come first)
 // [0, 1] before [0, 2] (then smaller second elements come first)
 
+Array.prototype.twoSum = function() {
+    const pairs = [];
+
+    for (let i = 0; i < this.length; i++) {
+        for (let j = i + 1; j < this.length; j++) {
+            if (this[i] + this[j] === 0) pairs.push([i, j]);
+        }
+    }
+
+    return pairs;
+}
+
 // Write a `String.prototype.mySlice(startIdx, endIdx)` method. It should take 
 // a start index and an (optional) end index and return a new string. Do NOT 
 // use the built-in string methods `slice`, `substr`, or `substring`. 
@@ -394,13 +466,45 @@ function fibsSum(n) {
 // `abcde`.mySlice(2) => `cde`
 // `abcde`.mySlice(1, 3) => `bc`
 
+String.prototype.mySlice = function(start, end) {
+    let sliced = "";
+
+    if (typeof end === "undefined") end = this.length;
+
+    for (let i = start; i < end && i < this.length; i++) {
+        sliced += this[i];
+    }
+
+    return sliced;
+}
+
 // Write a function `myFind(array, callback)` that returns the first
 // element for which the callback returns true. If none is found, the 
 // function should return `undefined`
 // Do not use the built-in `Array.prototype.find` method.
 
+function myFind(array, callback) {
+    for (let i = 0; i < array.length; i++) {
+        if (callback(array[i]) === true) return array[i];
+    }
+}
+
 // Write a function `transpose(arr)` that returns a 2d array transposed.
 // e.g. transpose([[1,2],[3,4],[5,6]]) => [[1,3,5],[2,4,6]]
+
+function transpose(array) {
+    const transposed = [];
+
+    for (i = 0; i < array[0].length; i++) {
+        const row = [];
+
+        for (let j = 0; j < array.length; j++) row.push(array[j][i]);
+
+        transposed.push(row);
+    }
+
+    return transposed;
+}
 
 // Write an `Array.prototype.dups` method that will return an object containing 
 // the indices of all duplicate elements. The keys are the duplicate elements; 
@@ -409,21 +513,132 @@ function fibsSum(n) {
 // Example: 
 // [1, 3, 4, 3, 0, 3, 0].dups => { 3: [1, 3, 5], 0: [4, 6] }
 
+Array.prototype.dups = function() {
+    let dups = {};
+
+    for (let i = 0; i < this.length; i++) {
+        if (dups[this[i]]) {
+            dups[this[i]].push(i);
+        } else {
+            dups[this[i]] = [i];
+        }
+    }
+
+    for (let key in dups) {
+        if (dups[key].length < 2) delete dups[key];
+    }
+
+    return dups;
+}
+
 // Write a function, `factors(num)`, that returns an array containing the factors
 // of a number in ascending order.
+
+function factors(num) {
+    let facs = [];
+
+    for (let i = 1; i <= num; i++) {
+        if (num % i === 0) facs.push(i);
+    }
+
+    return facs;
+}
 
 // Write an `Array.prototype.myFlatten()` method which flattens a 
 // multi-dimensional array into a one-dimensional array.
 // Example:
 // [["a"], "b", ["c", "d", ["e"]]].myFlatten() => ["a", "b", "c", "d", "e"]
 
+Array.prototype.myFlatten = function () {
+    let flattened = [];
+
+    this.forEach((ele) => {
+        if (ele instanceof Array) {
+            flattened = flattened.concat(ele.myFlatten());
+        } else {
+            flattened.push(ele);
+        }
+    });
+
+    return flattened;
+}
+
+// Array.prototype.myFlatten = function() {
+//     let flattened = [];
+
+//     for (let i = 0; i < this.length; i++) {
+//         if (Array.isArray(this[i])) {
+//             flattened = flattened.concat(this[i].myFlatten());
+//         } else {
+//             flattened.push(this[i]);
+//         }
+//     }
+
+//     return flattened;
+// }
+
 // Write a function `myReverse(array)` which returns the array in reversed
 // order. Do NOT use the built-in `Array.prototype.reverse`.
 // ex. myReverse([1,2,3]) => [3,2,1]
 
+function myReverse(array) {
+    let reversed = [];
+
+    for (i = 0; i < array.length; i++) {
+        reversed.push(array[array.length - 1 - i]);
+    }
+
+    return reversed;
+}
+
 // Write a `Function.prototype.myCurry(numArgs)` method that collects arguments 
 // until the number of arguments collected is equal to the original `numArgs` 
 // value and then invokes the curried function.
+
+Function.prototype.myCurry = function(numArgs) {
+    let args = [];
+    let func = this;
+
+    function _curried(arg) {
+        args.push(arg);
+
+        if (args.length === numArgs) {
+            return func(...args);
+        } else {
+            return _curried;
+        }
+    }
+
+    return _curried;
+}
+
+// let curry = function(func, num) {
+//     let arr = [];
+
+//     return function _function(...args) {
+//         arr.push(...args);
+
+//         if (arr.length >= num) {
+//             return func.apply("banana", arr.slice(0, num));
+//         }
+
+//         return _function;
+//     }
+// }
+
+// function curryWithContext(func, context, numArgs) {
+//     const args = [];
+
+//     return function _curryWithContext(...elements) {
+//         args.push(...elements);
+
+//         if (args.length === numArgs) {
+//             return _curryWithContext;
+//         }
+
+//         return func.apply(context, args.slice(0, numArgs));
+//     }
+// }
 
 // Write a `Function.prototype.inherits(ParentClass)` method. It should extend
 // the methods of `ParentClass.prototype` to `ChildClass.prototype`.
@@ -431,22 +646,52 @@ function fibsSum(n) {
 // **Do NOT use `Object.create`, `Object.assign`, `Object.setPrototypeOf`, or
 // modify the `__proto__` property of any object directly.**
 
+Function.prototype.inherits = function(Parent) {
+    function Surrogate() {}
+    Surrogate.prototype = Parent.prototype;
+    this.prototype = new Surrogate();
+    this.prototype.constructor = this;
+}
+
+// function inherits(ParentClass, ChildClass) {
+//     function Surrogate() {}
+//     Surrogate.prototype = ParentClass.prototype;
+//     ChildClass.prototype = new Surrogate();
+//     ChildClass.prototype.constructor = ChildClass;
+// }
+
 // Write a `Function.prototype.myCall(context)` method, that accepts an object, 
 // and any number of additional arguments. It should call the function with the
 // passed-in object as `this`, also passing the remaining arguments. Do NOT use
 // the built-in `Function.prototype.call` or `Function.prototype.apply` methods 
 // in your implementation.
 
+Function.prototype.myCall = function(context, ...args) {
+    return this.bind(context)(...args);
+}
+
 // Write a `Function.prototype.myBind(context)` method. It should return a copy
 // of the original function, where `this` is set to `context`. It should allow 
 // arguments to the function to be passed both at bind-time and call-time.
 // Note that you are NOT allowed to use ES6 arrow syntax for this problem.
+
+Function.prototype.myBind = function(context, ...bindArgs) {
+    const that = this;
+    
+    return function(...callArgs) {
+        return that.apply(context, bindArgs.concat(callArgs));
+    }
+}
 
 // Write a `Function.prototype.myApply(context, argsArr)` method that accepts an
 // object and an array of additional arguments. It should call the function with 
 // the passed-in object as `this`, also passing the arguments array. Do NOT use 
 // the built-in `Function.prototype.apply` or `Function.prototype.call` methods
 // in your implementation.
+
+Function.prototype.myApply = function(context, args = []) {
+    return this.bind(context)(...args);
+}
 
 // Write an `Array.prototype.myReduce(callback, acc)` method which takes a 
 // callback and an optional argument of a default accumulator. If myReduce only 
@@ -455,9 +700,27 @@ function fibsSum(n) {
 // NOT call in the built-in `Array.prototype.reduce` or `Array.prototype.forEach` 
 // methods.
 
+Array.prototype.myReduce = function(callback, acc) {
+    const array = this.slice();
+
+    if (typeof acc === "undefined") acc = array.shift();
+
+    array.myEach((ele) => {
+        acc = callback(acc, ele);
+    })
+
+    return acc;
+}
+
 // Write an `Array.prototype.myEach(callback)` method that invokes a callback
 // for every element in an array and returns undefined. Do NOT use the built-in
 // `Array.prototype.forEach`.
+
+Array.prototype.myEach = function(callback) {
+    for (let i = 0; i < this.length; i++) {
+        callback(this[i]);
+    }
+}
 
 // Write an `Array.prototype.mySome(callback)` method which takes a callback 
 // and returns true if the callback returns true for ANY element in the array. 
@@ -465,11 +728,31 @@ function fibsSum(n) {
 // Use the `Array.prototype.myEach` method you defined above. Do NOT call the
 // built-in `Array.prototype.some` or `Array.prototype.forEach` methods.
 
+Array.prototype.mySome = function(callback) {
+    let some = false;
+
+    this.myEach((ele) => {
+        if (callback(ele) === true) some = true;
+    })
+
+    return some;
+}
+
 // Write an `Array.prototype.myFilter(callback)` that takes a callback and 
 // returns a new array which includes every element for which the callback 
 // returned true. Use the `Array.prototype.myEach` method you defined above. Do 
 // NOT call the built-in `Array.prototype.filter` or `Array.prototype.forEach` 
 // methods.
+
+Array.prototype.myFilter = function(callback) {
+    let filtered = [];
+
+    this.myEach((ele) => {
+        if (callback(ele) === true) filtered.push(ele);
+    })
+
+    return filtered;
+}
 
 // Write an `Array.prototype.myEvery(callback)` method that returns true 
 // if the callback returns true for every element in the array, and otherwise 
@@ -477,10 +760,30 @@ function fibsSum(n) {
 // NOT call the built-in `Array.prototype.every` or `Array.prototype.forEach` 
 // methods.
 
+Array.prototype.myEvery = function(callback) {
+    let every = true;
+
+    this.myEach((ele) => {
+        if (callback(ele) === false) every = false;
+    })
+
+    return every;
+}
+
 // Write an `Array.prototype.myReject(callback)` method. Return a new array, 
 // which contains only the elements for which the callback returns false. 
 // Use the `Array.prototype.myEach` method you defined above. Do NOT call the 
 // built-in `Array.prototype.filter` or `Array.prototype.forEach` methods.
 // ex.
 // [1,2,3].myReject( (el) => el > 2 ) => [1, 2]
+
+Array.prototype.myReject = function(callback) {
+    let rejected = [];
+
+    this.myEach((ele) => {
+        if (callback(ele) === false) rejected.push(ele);
+    })
+
+    return rejected;
+}
 
